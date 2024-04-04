@@ -1,4 +1,4 @@
-package com.playtomic.tests.wallet.domain.query;
+package com.playtomic.tests.wallet.domain;
 
 public class WalletNotFoundException extends RuntimeException {
 }

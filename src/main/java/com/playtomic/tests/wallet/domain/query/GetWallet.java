@@ -1,5 +1,6 @@
 package com.playtomic.tests.wallet.domain.query;
 
+import com.playtomic.tests.wallet.domain.WalletNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service

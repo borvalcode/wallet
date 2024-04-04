@@ -5,6 +5,9 @@ import com.playtomic.tests.wallet.domain.command.WalletRepository;
 import com.playtomic.tests.wallet.infrastructure.inmemory.InMemoryStorage;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+import java.util.function.Consumer;
+
 @Service
 public class InMemoryWalletRepository implements WalletRepository {
     private static long currentWalletId = 0;
@@ -24,6 +27,18 @@ public class InMemoryWalletRepository implements WalletRepository {
     @Override
     public void store(Wallet wallet) {
         walletStorage.put(wallet.getId(), wallet);
+    }
+
+    @Override
+    public Optional<Boolean> update(long walletId, Consumer<Wallet> updating) {
+        return walletStorage.get(walletId)
+                .map(wallet -> {
+                    updating.accept(wallet);
+
+                    store(wallet);
+
+                    return true;
+                });
     }
 
 }

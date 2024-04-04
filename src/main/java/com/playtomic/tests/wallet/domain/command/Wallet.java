@@ -24,4 +24,24 @@ public final class Wallet {
     public BigDecimal getAmount() {
         return amount;
     }
+
+    public void topUp(BigDecimal amount) {
+        requireNonNull(amount);
+        requirePositive(amount);
+
+        this.amount = this.amount.add(amount);
+    }
+
+    public void deduct(BigDecimal amount) {
+        requireNonNull(amount);
+        requirePositive(amount);
+
+        this.amount = this.amount.subtract(amount);
+    }
+
+    private void requirePositive(BigDecimal amount) {
+        if (amount.signum() != 1) {
+            throw new IllegalArgumentException("Needs to be positive");
+        }
+    }
 }

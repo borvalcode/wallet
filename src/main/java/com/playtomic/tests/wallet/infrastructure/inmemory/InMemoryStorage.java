@@ -5,13 +5,14 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class InMemoryStorage<K, V> {
-    private final Map<K, V> storage;
+    private final ConcurrentHashMap<K, V> storage;
 
     public InMemoryStorage() {
-        this.storage = new HashMap<>();
+        this.storage = new ConcurrentHashMap<>();
     }
 
     public void put(K key, V value) {
