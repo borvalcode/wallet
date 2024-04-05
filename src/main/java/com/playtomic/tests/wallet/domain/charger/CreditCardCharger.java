@@ -5,6 +5,5 @@ import org.springframework.stereotype.Component;
 
 @Component
 public interface CreditCardCharger {
-
   Charge charge(CreditCard creditCard, BigDecimal amount);
 }

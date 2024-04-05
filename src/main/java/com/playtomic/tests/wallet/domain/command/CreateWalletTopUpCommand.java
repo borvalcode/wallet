@@ -1,5 +1,7 @@
 package com.playtomic.tests.wallet.domain.command;
 
+import com.playtomic.tests.wallet.domain.command.entity.WalletTopUp;
+import com.playtomic.tests.wallet.domain.command.repository.WalletTopUpRepository;
 import java.math.BigDecimal;
 import lombok.Builder;
 import lombok.NonNull;
@@ -7,10 +9,10 @@ import lombok.Value;
 import org.springframework.stereotype.Service;
 
 @Service
-public final class CreateWalletTopUp {
+public final class CreateWalletTopUpCommand {
   private final WalletTopUpRepository walletTopUpRepository;
 
-  public CreateWalletTopUp(WalletTopUpRepository walletTopUpRepository) {
+  public CreateWalletTopUpCommand(WalletTopUpRepository walletTopUpRepository) {
     this.walletTopUpRepository = walletTopUpRepository;
   }
 

@@ -1,13 +1,15 @@
 package com.playtomic.tests.wallet.domain.query;
 
 import com.playtomic.tests.wallet.domain.NotFoundException;
+import com.playtomic.tests.wallet.domain.query.dto.WalletTopUpDetails;
+import com.playtomic.tests.wallet.domain.query.view.WalletTopUpView;
 import org.springframework.stereotype.Service;
 
 @Service
-public class GetWalletTopUp {
+public class GetWalletTopUpQuery {
   private final WalletTopUpView walletTopUpView;
 
-  public GetWalletTopUp(WalletTopUpView walletTopUpView) {
+  public GetWalletTopUpQuery(WalletTopUpView walletTopUpView) {
     this.walletTopUpView = walletTopUpView;
   }
 

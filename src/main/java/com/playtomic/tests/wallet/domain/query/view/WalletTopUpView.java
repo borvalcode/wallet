@@ -1,5 +1,6 @@
-package com.playtomic.tests.wallet.domain.query;
+package com.playtomic.tests.wallet.domain.query.view;
 
+import com.playtomic.tests.wallet.domain.query.dto.WalletTopUpDetails;
 import java.util.Optional;
 import org.springframework.stereotype.Component;
 

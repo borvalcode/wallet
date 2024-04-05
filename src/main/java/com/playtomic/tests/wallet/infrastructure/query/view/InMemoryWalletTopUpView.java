@@ -1,7 +1,7 @@
-package com.playtomic.tests.wallet.infrastructure.query;
+package com.playtomic.tests.wallet.infrastructure.query.view;
 
-import com.playtomic.tests.wallet.domain.query.WalletTopUpDetails;
-import com.playtomic.tests.wallet.domain.query.WalletTopUpView;
+import com.playtomic.tests.wallet.domain.query.dto.WalletTopUpDetails;
+import com.playtomic.tests.wallet.domain.query.view.WalletTopUpView;
 import com.playtomic.tests.wallet.infrastructure.inmemory.InMemoryTopUpStorage;
 import java.util.Optional;
 import org.springframework.stereotype.Component;

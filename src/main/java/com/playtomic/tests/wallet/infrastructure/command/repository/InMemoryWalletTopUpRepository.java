@@ -1,7 +1,7 @@
-package com.playtomic.tests.wallet.infrastructure.command;
+package com.playtomic.tests.wallet.infrastructure.command.repository;
 
-import com.playtomic.tests.wallet.domain.command.WalletTopUp;
-import com.playtomic.tests.wallet.domain.command.WalletTopUpRepository;
+import com.playtomic.tests.wallet.domain.command.entity.WalletTopUp;
+import com.playtomic.tests.wallet.domain.command.repository.WalletTopUpRepository;
 import com.playtomic.tests.wallet.infrastructure.inmemory.InMemoryTopUpStorage;
 import org.springframework.stereotype.Service;
 

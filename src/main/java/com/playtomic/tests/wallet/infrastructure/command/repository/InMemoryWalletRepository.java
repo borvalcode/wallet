@@ -1,7 +1,7 @@
-package com.playtomic.tests.wallet.infrastructure.command;
+package com.playtomic.tests.wallet.infrastructure.command.repository;
 
-import com.playtomic.tests.wallet.domain.command.Wallet;
-import com.playtomic.tests.wallet.domain.command.WalletRepository;
+import com.playtomic.tests.wallet.domain.command.entity.Wallet;
+import com.playtomic.tests.wallet.domain.command.repository.WalletRepository;
 import com.playtomic.tests.wallet.infrastructure.inmemory.InMemoryWalletStorage;
 import java.util.Optional;
 import java.util.function.Consumer;

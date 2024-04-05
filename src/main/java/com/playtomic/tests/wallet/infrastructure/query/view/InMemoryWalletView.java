@@ -1,7 +1,7 @@
-package com.playtomic.tests.wallet.infrastructure.query;
+package com.playtomic.tests.wallet.infrastructure.query.view;
 
-import com.playtomic.tests.wallet.domain.query.WalletDetails;
-import com.playtomic.tests.wallet.domain.query.WalletView;
+import com.playtomic.tests.wallet.domain.query.dto.WalletDetails;
+import com.playtomic.tests.wallet.domain.query.view.WalletView;
 import com.playtomic.tests.wallet.infrastructure.inmemory.InMemoryWalletStorage;
 import java.util.Optional;
 import org.springframework.stereotype.Service;

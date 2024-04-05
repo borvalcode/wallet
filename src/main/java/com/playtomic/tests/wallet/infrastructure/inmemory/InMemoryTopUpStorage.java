@@ -1,6 +1,6 @@
 package com.playtomic.tests.wallet.infrastructure.inmemory;
 
-import com.playtomic.tests.wallet.domain.command.WalletTopUp;
+import com.playtomic.tests.wallet.domain.command.entity.WalletTopUp;
 import org.springframework.stereotype.Component;
 
 @Component

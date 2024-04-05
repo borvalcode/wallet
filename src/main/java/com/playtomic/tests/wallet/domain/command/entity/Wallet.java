@@ -1,4 +1,4 @@
-package com.playtomic.tests.wallet.domain.command;
+package com.playtomic.tests.wallet.domain.command.entity;
 
 import static java.util.Objects.requireNonNull;
 

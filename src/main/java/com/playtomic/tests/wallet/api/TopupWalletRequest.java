@@ -11,6 +11,5 @@ import lombok.NonNull;
 @NoArgsConstructor
 public class TopupWalletRequest {
   @NonNull private String creditCardNumber;
-
   @NonNull private BigDecimal amount;
 }

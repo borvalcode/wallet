@@ -1,12 +1,12 @@
 package com.playtomic.tests.wallet.api;
 
 import com.playtomic.tests.wallet.domain.NotFoundException;
-import com.playtomic.tests.wallet.domain.command.CreateWallet;
-import com.playtomic.tests.wallet.domain.command.TopUpWallet;
-import com.playtomic.tests.wallet.domain.query.GetWallet;
-import com.playtomic.tests.wallet.domain.query.GetWalletTopUp;
-import com.playtomic.tests.wallet.domain.query.WalletDetails;
-import com.playtomic.tests.wallet.domain.query.WalletTopUpDetails;
+import com.playtomic.tests.wallet.domain.command.CreateWalletCommand;
+import com.playtomic.tests.wallet.domain.command.TopUpWalletCommand;
+import com.playtomic.tests.wallet.domain.query.GetWalletQuery;
+import com.playtomic.tests.wallet.domain.query.GetWalletTopUpQuery;
+import com.playtomic.tests.wallet.domain.query.dto.WalletDetails;
+import com.playtomic.tests.wallet.domain.query.dto.WalletTopUpDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -22,20 +22,20 @@ import org.springframework.web.bind.annotation.RestController;
 public class WalletController {
   private static final Logger log = LoggerFactory.getLogger(WalletController.class);
 
-  private final CreateWallet createWallet;
-  private final GetWallet getWallet;
-  private final TopUpWallet topUpWallet;
-  private final GetWalletTopUp getWalletTopUp;
+  private final CreateWalletCommand createWalletCommand;
+  private final GetWalletQuery getWalletQuery;
+  private final TopUpWalletCommand topUpWalletCommand;
+  private final GetWalletTopUpQuery getWalletTopUpQuery;
 
   public WalletController(
-      CreateWallet createWallet,
-      GetWallet getWallet,
-      TopUpWallet topUpWallet,
-      GetWalletTopUp getWalletTopUp) {
-    this.createWallet = createWallet;
-    this.getWallet = getWallet;
-    this.topUpWallet = topUpWallet;
-    this.getWalletTopUp = getWalletTopUp;
+      CreateWalletCommand createWalletCommand,
+      GetWalletQuery getWalletQuery,
+      TopUpWalletCommand topUpWalletCommand,
+      GetWalletTopUpQuery getWalletTopUpQuery) {
+    this.createWalletCommand = createWalletCommand;
+    this.getWalletQuery = getWalletQuery;
+    this.topUpWalletCommand = topUpWalletCommand;
+    this.getWalletTopUpQuery = getWalletTopUpQuery;
   }
 
   @RequestMapping("/")
@@ -48,7 +48,7 @@ public class WalletController {
     log.info("Retrieving wallet {}", walletId);
 
     try {
-      WalletDetails walletDetails = getWallet.execute(walletId);
+      WalletDetails walletDetails = getWalletQuery.execute(walletId);
       return ResponseEntity.ok(walletDetails);
     } catch (NotFoundException ex) {
       return ResponseEntity.notFound().build();
@@ -59,7 +59,7 @@ public class WalletController {
   ResponseEntity<WalletDetails> createWallet() {
     log.info("Creating wallet ");
 
-    long walletId = createWallet.execute();
+    long walletId = createWalletCommand.execute();
     return getWallet(walletId);
   }
 
@@ -69,9 +69,9 @@ public class WalletController {
     log.info("Topping up wallet {}", walletId);
 
     try {
-      TopUpWallet.Result result =
-          topUpWallet.execute(
-              TopUpWallet.Input.builder()
+      TopUpWalletCommand.Result result =
+          topUpWalletCommand.execute(
+              TopUpWalletCommand.Input.builder()
                   .walletId(walletId)
                   .creditCardNumber(request.getCreditCardNumber())
                   .amount(request.getAmount())
@@ -93,7 +93,7 @@ public class WalletController {
     log.info("Retrieving wallet {}", walletId);
 
     try {
-      WalletTopUpDetails walletTopUpDetails = getWalletTopUp.execute(walletId, topUpId);
+      WalletTopUpDetails walletTopUpDetails = getWalletTopUpQuery.execute(walletId, topUpId);
       return ResponseEntity.ok(walletTopUpDetails);
     } catch (NotFoundException ex) {
       return ResponseEntity.notFound().build();

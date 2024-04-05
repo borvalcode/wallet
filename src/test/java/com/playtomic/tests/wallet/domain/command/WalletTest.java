@@ -2,6 +2,7 @@ package com.playtomic.tests.wallet.domain.command;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.playtomic.tests.wallet.domain.command.entity.Wallet;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
 
