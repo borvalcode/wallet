@@ -81,6 +81,36 @@ public class WalletApplicationIT {
   }
 
   @Test
+  void topUpIncreasesBalance() {
+    stubFor(
+        WireMock.post("/v1/stripe-simulator/charges")
+            .withHeader("Content-Type", containing("json"))
+            .withRequestBody(
+                equalToJson("{\"credit_card\": \"4242 4242 4242 4242\", \"amount\": 5}"))
+            .willReturn(
+                aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", "application/json")
+                    .withBody("{\"id\": \"123\"}")));
+
+    long walletId = createWallet();
+
+    topUpWallet(walletId, new TopupWalletRequest("4242 4242 4242 4242", new BigDecimal(5)))
+        .expectStatus()
+        .isOk()
+        .expectBody(WalletTopUpDetails.class);
+
+    BigDecimal balance =
+        getWalletDetails(walletId)
+            .expectBody(WalletDetails.class)
+            .returnResult()
+            .getResponseBody()
+            .getAmount();
+
+    assertEquals(new BigDecimal(5), balance);
+  }
+
+  @Test
   void getTopUp() {
     stubFor(
         WireMock.post("/v1/stripe-simulator/charges")
