@@ -1,9 +1,17 @@
 package com.playtomic.tests.wallet;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.containing;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import com.playtomic.tests.wallet.api.TopupWalletRequest;
 import com.playtomic.tests.wallet.domain.query.WalletDetails;
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -15,107 +23,148 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.containing;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(profiles = "test")
 @WireMockTest(httpPort = 9999)
 public class WalletApplicationIT {
 
-    @Autowired
-    private WebTestClient webTestClient;
+  @Autowired private WebTestClient webTestClient;
 
-    @Test
-    public void newWallet() {
-        long walletId = createWallet();
+  @Test
+  public void newWallet() {
+    long walletId = createWallet();
 
-        assertWalletAmountZero(walletId);
-    }
+    assertWalletAmountZero(walletId);
+  }
 
-    @Test
-    void walletNotFound() {
-        getWalletDetails(123).expectStatus().isNotFound();
-    }
+  @Test
+  void walletNotFound() {
+    getWalletDetails(123).expectStatus().isNotFound();
+  }
 
-    @Test
-    void invalidWalletId() {
-        getWalletDetails("FOO").expectStatus().isBadRequest();
-    }
+  @Test
+  void invalidWalletId() {
+    getWalletDetails("FOO").expectStatus().isBadRequest();
+  }
 
-    @Test
-    void topUpOk() {
-        stubFor(WireMock.post("/v1/stripe-simulator/charges").withHeader("Content-Type", containing("json")).withRequestBody(equalToJson("{\"credit_card\": \"4242 4242 4242 4242\", \"amount\": 5}")).willReturn(aResponse().withStatus(200).withHeader("Content-Type", "application/json").withBody("{\"id\": \"123\"}")));
+  @Test
+  void topUpOk() {
+    stubFor(
+        WireMock.post("/v1/stripe-simulator/charges")
+            .withHeader("Content-Type", containing("json"))
+            .withRequestBody(
+                equalToJson("{\"credit_card\": \"4242 4242 4242 4242\", \"amount\": 5}"))
+            .willReturn(
+                aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", "application/json")
+                    .withBody("{\"id\": \"123\"}")));
 
-        long walletId = createWallet();
+    long walletId = createWallet();
 
-        topUpWallet(walletId, new TopupWalletRequest("4242 4242 4242 4242", new BigDecimal(5))).expectStatus().isOk().expectBody(WalletDetails.class).isEqualTo(new WalletDetails(walletId, new BigDecimal(5)));
-    }
+    topUpWallet(walletId, new TopupWalletRequest("4242 4242 4242 4242", new BigDecimal(5)))
+        .expectStatus()
+        .isOk()
+        .expectBody(WalletDetails.class)
+        .isEqualTo(new WalletDetails(walletId, new BigDecimal(5)));
+  }
 
-    @Test
-    void topUpErrorAmountTooSmall() {
-        stubFor(WireMock.post("/v1/stripe-simulator/charges").withHeader("Content-Type", containing("json")).withRequestBody(equalToJson("{\"credit_card\": \"4242 4242 4242 4242\", \"amount\": 5}")).willReturn(aResponse().withStatus(422)));
+  @Test
+  void topUpErrorAmountTooSmall() {
+    stubFor(
+        WireMock.post("/v1/stripe-simulator/charges")
+            .withHeader("Content-Type", containing("json"))
+            .withRequestBody(
+                equalToJson("{\"credit_card\": \"4242 4242 4242 4242\", \"amount\": 5}"))
+            .willReturn(aResponse().withStatus(422)));
 
-        long walletId = createWallet();
+    long walletId = createWallet();
 
-        topUpWallet(walletId, new TopupWalletRequest("4242 4242 4242 4242", new BigDecimal(5))).expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
+    topUpWallet(walletId, new TopupWalletRequest("4242 4242 4242 4242", new BigDecimal(5)))
+        .expectStatus()
+        .isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
 
-        assertWalletAmountZero(walletId);
-    }
+    assertWalletAmountZero(walletId);
+  }
 
-    @Test
-    void topUpErrorUnknown() {
-        stubFor(WireMock.post("/v1/stripe-simulator/charges").withHeader("Content-Type", containing("json")).withRequestBody(equalToJson("{\"credit_card\": \"4242 4242 4242 4242\", \"amount\": 5}")).willReturn(aResponse().withStatus(500)));
+  @Test
+  void topUpErrorUnknown() {
+    stubFor(
+        WireMock.post("/v1/stripe-simulator/charges")
+            .withHeader("Content-Type", containing("json"))
+            .withRequestBody(
+                equalToJson("{\"credit_card\": \"4242 4242 4242 4242\", \"amount\": 5}"))
+            .willReturn(aResponse().withStatus(500)));
 
-        long walletId = createWallet();
+    long walletId = createWallet();
 
-        topUpWallet(walletId, new TopupWalletRequest("4242 4242 4242 4242", new BigDecimal(5))).expectStatus().isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+    topUpWallet(walletId, new TopupWalletRequest("4242 4242 4242 4242", new BigDecimal(5)))
+        .expectStatus()
+        .isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
 
-        assertWalletAmountZero(walletId);
-    }
+    assertWalletAmountZero(walletId);
+  }
 
-    @Test
-    void topUpUnknownWalletId() {
-        topUpWallet(123, new TopupWalletRequest("4242 4242 4242 4242", new BigDecimal(5))).expectStatus().isNotFound();
-    }
+  @Test
+  void topUpUnknownWalletId() {
+    topUpWallet(123, new TopupWalletRequest("4242 4242 4242 4242", new BigDecimal(5)))
+        .expectStatus()
+        .isNotFound();
+  }
 
-    @Test
-    void topUpInvalidWalletId() {
-        topUpWallet("FOO", new TopupWalletRequest("4242 4242 4242 4242", new BigDecimal(5))).expectStatus().isBadRequest();
-    }
+  @Test
+  void topUpInvalidWalletId() {
+    topUpWallet("FOO", new TopupWalletRequest("4242 4242 4242 4242", new BigDecimal(5)))
+        .expectStatus()
+        .isBadRequest();
+  }
 
-    @ParameterizedTest
-    @MethodSource("provideInvalidTopUpRequests")
-    void topUpInvalidRequest(TopupWalletRequest request) {
-        long walletId = createWallet();
+  @ParameterizedTest
+  @MethodSource("provideInvalidTopUpRequests")
+  void topUpInvalidRequest(TopupWalletRequest request) {
+    long walletId = createWallet();
 
-        topUpWallet(walletId, request).expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
-    }
+    topUpWallet(walletId, request).expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
+  }
 
-    private void assertWalletAmountZero(long walletId) {
-        getWalletDetails(walletId).expectStatus().isOk().expectBody(WalletDetails.class).isEqualTo(new WalletDetails(walletId, BigDecimal.ZERO));
-    }
+  private void assertWalletAmountZero(long walletId) {
+    getWalletDetails(walletId)
+        .expectStatus()
+        .isOk()
+        .expectBody(WalletDetails.class)
+        .isEqualTo(new WalletDetails(walletId, BigDecimal.ZERO));
+  }
 
-    private WebTestClient.ResponseSpec getWalletDetails(Object walletId) {
-        return webTestClient.get().uri("/wallets/{walletId}", walletId).exchange();
-    }
+  private WebTestClient.ResponseSpec getWalletDetails(Object walletId) {
+    return webTestClient.get().uri("/wallets/{walletId}", walletId).exchange();
+  }
 
-    private WebTestClient.ResponseSpec topUpWallet(Object walletId, TopupWalletRequest request) {
-        return webTestClient.post().uri("/wallets/{walletId}/top-up", walletId).bodyValue(request).exchange();
-    }
+  private WebTestClient.ResponseSpec topUpWallet(Object walletId, TopupWalletRequest request) {
+    return webTestClient
+        .post()
+        .uri("/wallets/{walletId}/top-up", walletId)
+        .bodyValue(request)
+        .exchange();
+  }
 
-    private Long createWallet() {
-        return webTestClient.post().uri("/wallets").exchange().expectStatus().isOk().expectBody(WalletDetails.class).returnResult().getResponseBody().getId();
-    }
+  private Long createWallet() {
+    return webTestClient
+        .post()
+        .uri("/wallets")
+        .exchange()
+        .expectStatus()
+        .isOk()
+        .expectBody(WalletDetails.class)
+        .returnResult()
+        .getResponseBody()
+        .getId();
+  }
 
-    private static List<TopupWalletRequest> provideInvalidTopUpRequests() {
-        return Arrays.asList(new TopupWalletRequest("BAR", new BigDecimal(5)), new TopupWalletRequest("4242 4242 4242 4242", new BigDecimal(0)), new TopupWalletRequest("4242 4242 4242 4242", new BigDecimal(-1)));
-    }
+  private static List<TopupWalletRequest> provideInvalidTopUpRequests() {
+    return Arrays.asList(
+        new TopupWalletRequest("BAR", new BigDecimal(5)),
+        new TopupWalletRequest("4242 4242 4242 4242", new BigDecimal(0)),
+        new TopupWalletRequest("4242 4242 4242 4242", new BigDecimal(-1)));
+  }
 }

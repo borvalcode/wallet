@@ -4,19 +4,19 @@ import org.springframework.stereotype.Service;
 
 @Service
 public final class CreateWallet {
-    private final WalletRepository walletRepository;
+  private final WalletRepository walletRepository;
 
-    public CreateWallet(WalletRepository walletRepository) {
-        this.walletRepository = walletRepository;
-    }
+  public CreateWallet(WalletRepository walletRepository) {
+    this.walletRepository = walletRepository;
+  }
 
-    public long execute() {
-        long walletId = walletRepository.nextId();
+  public long execute() {
+    long walletId = walletRepository.nextId();
 
-        Wallet wallet = new Wallet(walletId);
+    Wallet wallet = new Wallet(walletId);
 
-        walletRepository.store(wallet);
+    walletRepository.store(wallet);
 
-        return walletId;
-    }
+    return walletId;
+  }
 }

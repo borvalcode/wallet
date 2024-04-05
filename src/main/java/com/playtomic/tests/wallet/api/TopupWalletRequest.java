@@ -1,19 +1,16 @@
 package com.playtomic.tests.wallet.api;
 
+import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
-import java.math.BigDecimal;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class TopupWalletRequest {
-    @NonNull
-    private String creditCardNumber;
+  @NonNull private String creditCardNumber;
 
-    @NonNull
-    private BigDecimal amount;
+  @NonNull private BigDecimal amount;
 }

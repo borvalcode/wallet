@@ -5,13 +5,13 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class GetWallet {
-    private final WalletView walletView;
+  private final WalletView walletView;
 
-    public GetWallet(WalletView walletView) {
-        this.walletView = walletView;
-    }
+  public GetWallet(WalletView walletView) {
+    this.walletView = walletView;
+  }
 
-    public WalletDetails execute(long walletId) {
-        return walletView.get(walletId).orElseThrow(WalletNotFoundException::new);
-    }
+  public WalletDetails execute(long walletId) {
+    return walletView.get(walletId).orElseThrow(WalletNotFoundException::new);
+  }
 }

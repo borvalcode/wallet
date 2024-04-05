@@ -18,56 +18,62 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class WalletController {
-    private final static Logger log = LoggerFactory.getLogger(WalletController.class);
+  private static final Logger log = LoggerFactory.getLogger(WalletController.class);
 
-    private final CreateWallet createWallet;
-    private final GetWallet getWallet;
-    private final TopUpWallet topUpWallet;
+  private final CreateWallet createWallet;
+  private final GetWallet getWallet;
+  private final TopUpWallet topUpWallet;
 
-    public WalletController(CreateWallet createWallet, GetWallet getWallet, TopUpWallet topUpWallet) {
-        this.createWallet = createWallet;
-        this.getWallet = getWallet;
-        this.topUpWallet = topUpWallet;
+  public WalletController(CreateWallet createWallet, GetWallet getWallet, TopUpWallet topUpWallet) {
+    this.createWallet = createWallet;
+    this.getWallet = getWallet;
+    this.topUpWallet = topUpWallet;
+  }
+
+  @RequestMapping("/")
+  void log() {
+    log.info("Logging from /");
+  }
+
+  @GetMapping("/wallets/{walletId}")
+  ResponseEntity<WalletDetails> getWallet(@PathVariable Long walletId) {
+    log.info("Retrieving wallet {}", walletId);
+
+    try {
+      WalletDetails walletDetails = getWallet.execute(walletId);
+      return ResponseEntity.ok(walletDetails);
+    } catch (WalletNotFoundException ex) {
+      return ResponseEntity.notFound().build();
     }
+  }
 
-    @RequestMapping("/")
-    void log() {
-        log.info("Logging from /");
+  @PostMapping("/wallets")
+  ResponseEntity<WalletDetails> createWallet() {
+    log.info("Creating wallet ");
+
+    long walletId = createWallet.execute();
+    return getWallet(walletId);
+  }
+
+  @PostMapping("/wallets/{walletId}/top-up")
+  ResponseEntity<WalletDetails> topUpWallet(
+      @PathVariable Long walletId, @RequestBody TopupWalletRequest request) {
+    log.info("Topping up wallet {}", walletId);
+
+    try {
+      topUpWallet.execute(
+          TopUpWallet.Input.builder()
+              .walletId(walletId)
+              .creditCardNumber(request.getCreditCardNumber())
+              .amount(request.getAmount())
+              .build());
+      return getWallet(walletId);
+    } catch (WalletNotFoundException ex) {
+      return ResponseEntity.notFound().build();
+    } catch (IllegalArgumentException ex) {
+      return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+    } catch (Exception ex) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
-
-    @GetMapping("/wallets/{walletId}")
-    ResponseEntity<WalletDetails> getWallet(@PathVariable Long walletId) {
-        log.info("Retrieving wallet {}", walletId);
-
-        try {
-            WalletDetails walletDetails = getWallet.execute(walletId);
-            return ResponseEntity.ok(walletDetails);
-        } catch (WalletNotFoundException ex) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @PostMapping("/wallets")
-    ResponseEntity<WalletDetails> createWallet() {
-        log.info("Creating wallet ");
-
-        long walletId = createWallet.execute();
-        return getWallet(walletId);
-    }
-
-    @PostMapping("/wallets/{walletId}/top-up")
-    ResponseEntity<WalletDetails> topUpWallet(@PathVariable Long walletId, @RequestBody TopupWalletRequest request) {
-        log.info("Topping up wallet {}", walletId);
-
-        try {
-            topUpWallet.execute(TopUpWallet.Input.builder().walletId(walletId).creditCardNumber(request.getCreditCardNumber()).amount(request.getAmount()).build());
-            return getWallet(walletId);
-        } catch (WalletNotFoundException ex) {
-            return ResponseEntity.notFound().build();
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
-        } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
+  }
 }

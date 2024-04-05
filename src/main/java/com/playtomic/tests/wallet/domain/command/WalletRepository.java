@@ -1,18 +1,15 @@
 package com.playtomic.tests.wallet.domain.command;
 
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Repository;
-
 import java.util.Optional;
 import java.util.function.Consumer;
+import org.springframework.stereotype.Component;
 
 @Component
 public interface WalletRepository {
 
-    long nextId();
+  long nextId();
 
-    void store(Wallet wallet);
+  void store(Wallet wallet);
 
-    Optional<Boolean> update(long walletId, Consumer<Wallet> updating);
-
+  Optional<Boolean> update(long walletId, Consumer<Wallet> updating);
 }
