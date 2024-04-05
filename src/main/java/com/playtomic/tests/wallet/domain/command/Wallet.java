@@ -32,7 +32,7 @@ public final class Wallet {
     this.amount = this.amount.add(amount);
   }
 
-  public void deduct(BigDecimal amount) {
+  public void spend(BigDecimal amount) {
     requireNonNull(amount);
     requirePositive(amount);
 

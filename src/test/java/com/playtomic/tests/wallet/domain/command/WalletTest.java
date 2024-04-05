@@ -67,7 +67,7 @@ class WalletTest {
   void deductAWallet() {
     Wallet wallet = new Wallet(1);
 
-    wallet.deduct(new BigDecimal("1.5"));
+    wallet.spend(new BigDecimal("1.5"));
 
     assertEquals(new BigDecimal("-1.5"), wallet.getAmount());
   }
@@ -76,8 +76,8 @@ class WalletTest {
   void deductWalletAccumulation() {
     Wallet wallet = new Wallet(1);
 
-    wallet.deduct(new BigDecimal("1.5"));
-    wallet.deduct(new BigDecimal("2.2"));
+    wallet.spend(new BigDecimal("1.5"));
+    wallet.spend(new BigDecimal("2.2"));
 
     assertEquals(new BigDecimal("-3.7"), wallet.getAmount());
   }
@@ -88,7 +88,7 @@ class WalletTest {
 
     BigDecimal amount = wallet.getAmount();
 
-    assertThrows(NullPointerException.class, () -> wallet.deduct(null));
+    assertThrows(NullPointerException.class, () -> wallet.spend(null));
     assertEquals(amount, wallet.getAmount());
   }
 
@@ -98,7 +98,7 @@ class WalletTest {
 
     BigDecimal amount = wallet.getAmount();
 
-    assertThrows(IllegalArgumentException.class, () -> wallet.deduct(BigDecimal.ZERO));
+    assertThrows(IllegalArgumentException.class, () -> wallet.spend(BigDecimal.ZERO));
     assertEquals(amount, wallet.getAmount());
   }
 
@@ -108,7 +108,7 @@ class WalletTest {
 
     BigDecimal amount = wallet.getAmount();
 
-    assertThrows(IllegalArgumentException.class, () -> wallet.deduct(new BigDecimal("-1")));
+    assertThrows(IllegalArgumentException.class, () -> wallet.spend(new BigDecimal("-1")));
     assertEquals(amount, wallet.getAmount());
   }
 }

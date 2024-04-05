@@ -2,7 +2,7 @@ package com.playtomic.tests.wallet.infrastructure.command;
 
 import com.playtomic.tests.wallet.domain.command.Wallet;
 import com.playtomic.tests.wallet.domain.command.WalletRepository;
-import com.playtomic.tests.wallet.infrastructure.inmemory.InMemoryStorage;
+import com.playtomic.tests.wallet.infrastructure.inmemory.InMemoryWalletStorage;
 import java.util.Optional;
 import java.util.function.Consumer;
 import org.springframework.stereotype.Service;
@@ -11,9 +11,9 @@ import org.springframework.stereotype.Service;
 public class InMemoryWalletRepository implements WalletRepository {
   private static long currentWalletId = 0;
 
-  private final InMemoryStorage<Long, Wallet> walletStorage;
+  private final InMemoryWalletStorage walletStorage;
 
-  public InMemoryWalletRepository(InMemoryStorage<Long, Wallet> walletStorage) {
+  public InMemoryWalletRepository(InMemoryWalletStorage walletStorage) {
     this.walletStorage = walletStorage;
   }
 

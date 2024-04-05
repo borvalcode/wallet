@@ -1,6 +1,6 @@
 package com.playtomic.tests.wallet.domain.query;
 
-import com.playtomic.tests.wallet.domain.WalletNotFoundException;
+import com.playtomic.tests.wallet.domain.NotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -12,6 +12,6 @@ public class GetWallet {
   }
 
   public WalletDetails execute(long walletId) {
-    return walletView.get(walletId).orElseThrow(WalletNotFoundException::new);
+    return walletView.get(walletId).orElseThrow(NotFoundException::new);
   }
 }

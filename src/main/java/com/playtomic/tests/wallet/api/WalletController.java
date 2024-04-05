@@ -1,10 +1,12 @@
 package com.playtomic.tests.wallet.api;
 
-import com.playtomic.tests.wallet.domain.WalletNotFoundException;
+import com.playtomic.tests.wallet.domain.NotFoundException;
 import com.playtomic.tests.wallet.domain.command.CreateWallet;
 import com.playtomic.tests.wallet.domain.command.TopUpWallet;
 import com.playtomic.tests.wallet.domain.query.GetWallet;
+import com.playtomic.tests.wallet.domain.query.GetWalletTopUp;
 import com.playtomic.tests.wallet.domain.query.WalletDetails;
+import com.playtomic.tests.wallet.domain.query.WalletTopUpDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -23,11 +25,17 @@ public class WalletController {
   private final CreateWallet createWallet;
   private final GetWallet getWallet;
   private final TopUpWallet topUpWallet;
+  private final GetWalletTopUp getWalletTopUp;
 
-  public WalletController(CreateWallet createWallet, GetWallet getWallet, TopUpWallet topUpWallet) {
+  public WalletController(
+      CreateWallet createWallet,
+      GetWallet getWallet,
+      TopUpWallet topUpWallet,
+      GetWalletTopUp getWalletTopUp) {
     this.createWallet = createWallet;
     this.getWallet = getWallet;
     this.topUpWallet = topUpWallet;
+    this.getWalletTopUp = getWalletTopUp;
   }
 
   @RequestMapping("/")
@@ -42,7 +50,7 @@ public class WalletController {
     try {
       WalletDetails walletDetails = getWallet.execute(walletId);
       return ResponseEntity.ok(walletDetails);
-    } catch (WalletNotFoundException ex) {
+    } catch (NotFoundException ex) {
       return ResponseEntity.notFound().build();
     }
   }
@@ -55,25 +63,40 @@ public class WalletController {
     return getWallet(walletId);
   }
 
-  @PostMapping("/wallets/{walletId}/top-up")
-  ResponseEntity<WalletDetails> topUpWallet(
+  @PostMapping("/wallets/{walletId}/top-ups")
+  ResponseEntity<WalletTopUpDetails> createTopUp(
       @PathVariable Long walletId, @RequestBody TopupWalletRequest request) {
     log.info("Topping up wallet {}", walletId);
 
     try {
-      topUpWallet.execute(
-          TopUpWallet.Input.builder()
-              .walletId(walletId)
-              .creditCardNumber(request.getCreditCardNumber())
-              .amount(request.getAmount())
-              .build());
-      return getWallet(walletId);
-    } catch (WalletNotFoundException ex) {
+      TopUpWallet.Result result =
+          topUpWallet.execute(
+              TopUpWallet.Input.builder()
+                  .walletId(walletId)
+                  .creditCardNumber(request.getCreditCardNumber())
+                  .amount(request.getAmount())
+                  .build());
+
+      return getTopUp(walletId, result.getTopUpId());
+    } catch (NotFoundException ex) {
       return ResponseEntity.notFound().build();
     } catch (IllegalArgumentException ex) {
       return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
     } catch (Exception ex) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+  }
+
+  @GetMapping("/wallets/{walletId}/top-ups/{topUpId}")
+  ResponseEntity<WalletTopUpDetails> getTopUp(
+      @PathVariable Long walletId, @PathVariable Long topUpId) {
+    log.info("Retrieving wallet {}", walletId);
+
+    try {
+      WalletTopUpDetails walletTopUpDetails = getWalletTopUp.execute(walletId, topUpId);
+      return ResponseEntity.ok(walletTopUpDetails);
+    } catch (NotFoundException ex) {
+      return ResponseEntity.notFound().build();
     }
   }
 }

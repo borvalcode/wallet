@@ -1,17 +1,16 @@
 package com.playtomic.tests.wallet.infrastructure.query;
 
-import com.playtomic.tests.wallet.domain.command.Wallet;
 import com.playtomic.tests.wallet.domain.query.WalletDetails;
 import com.playtomic.tests.wallet.domain.query.WalletView;
-import com.playtomic.tests.wallet.infrastructure.inmemory.InMemoryStorage;
+import com.playtomic.tests.wallet.infrastructure.inmemory.InMemoryWalletStorage;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 @Service
 public class InMemoryWalletView implements WalletView {
-  private final InMemoryStorage<Long, Wallet> walletStorage;
+  private final InMemoryWalletStorage walletStorage;
 
-  public InMemoryWalletView(InMemoryStorage<Long, Wallet> walletStorage) {
+  public InMemoryWalletView(InMemoryWalletStorage walletStorage) {
     this.walletStorage = walletStorage;
   }
 

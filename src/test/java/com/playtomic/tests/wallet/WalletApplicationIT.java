@@ -4,11 +4,14 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import com.playtomic.tests.wallet.api.TopupWalletRequest;
 import com.playtomic.tests.wallet.domain.query.WalletDetails;
+import com.playtomic.tests.wallet.domain.query.WalletTopUpDetails;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
@@ -63,11 +66,48 @@ public class WalletApplicationIT {
 
     long walletId = createWallet();
 
-    topUpWallet(walletId, new TopupWalletRequest("4242 4242 4242 4242", new BigDecimal(5)))
+    WalletTopUpDetails walletTopUpDetails =
+        topUpWallet(walletId, new TopupWalletRequest("4242 4242 4242 4242", new BigDecimal(5)))
+            .expectStatus()
+            .isOk()
+            .expectBody(WalletTopUpDetails.class)
+            .returnResult()
+            .getResponseBody();
+
+    assertNotNull(walletTopUpDetails.getId());
+    assertEquals("123", walletTopUpDetails.getPaymentId());
+    assertEquals(new BigDecimal(5), walletTopUpDetails.getAmount());
+    assertEquals(walletId, walletTopUpDetails.getWalletId());
+  }
+
+  @Test
+  void getTopUp() {
+    stubFor(
+        WireMock.post("/v1/stripe-simulator/charges")
+            .withHeader("Content-Type", containing("json"))
+            .withRequestBody(
+                equalToJson("{\"credit_card\": \"4242 4242 4242 4242\", \"amount\": 5}"))
+            .willReturn(
+                aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", "application/json")
+                    .withBody("{\"id\": \"123\"}")));
+
+    long walletId = createWallet();
+
+    WalletTopUpDetails walletTopUpDetails =
+        topUpWallet(walletId, new TopupWalletRequest("4242 4242 4242 4242", new BigDecimal(5)))
+            .expectStatus()
+            .isOk()
+            .expectBody(WalletTopUpDetails.class)
+            .returnResult()
+            .getResponseBody();
+
+    getTopUpDetails(walletId, walletTopUpDetails.getId())
         .expectStatus()
         .isOk()
-        .expectBody(WalletDetails.class)
-        .isEqualTo(new WalletDetails(walletId, new BigDecimal(5)));
+        .expectBody(WalletTopUpDetails.class)
+        .isEqualTo(walletTopUpDetails);
   }
 
   @Test
@@ -140,10 +180,17 @@ public class WalletApplicationIT {
     return webTestClient.get().uri("/wallets/{walletId}", walletId).exchange();
   }
 
+  private WebTestClient.ResponseSpec getTopUpDetails(Object walletId, Object topUpId) {
+    return webTestClient
+        .get()
+        .uri("/wallets/{walletId}/top-ups/{topUpId}", walletId, topUpId)
+        .exchange();
+  }
+
   private WebTestClient.ResponseSpec topUpWallet(Object walletId, TopupWalletRequest request) {
     return webTestClient
         .post()
-        .uri("/wallets/{walletId}/top-up", walletId)
+        .uri("/wallets/{walletId}/top-ups", walletId)
         .bodyValue(request)
         .exchange();
   }
