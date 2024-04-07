@@ -1,12 +1,13 @@
 package com.playtomic.tests.wallet.domain.command;
 
-import com.playtomic.tests.wallet.domain.NotFoundException;
 import com.playtomic.tests.wallet.domain.charger.Charge;
 import com.playtomic.tests.wallet.domain.charger.CreditCard;
 import com.playtomic.tests.wallet.domain.charger.CreditCardCharger;
+import com.playtomic.tests.wallet.domain.command.entity.WalletTopUp;
 import com.playtomic.tests.wallet.domain.command.repository.WalletRepository;
+import com.playtomic.tests.wallet.domain.command.repository.WalletTopUpRepository;
+import com.playtomic.tests.wallet.domain.exception.NotFoundException;
 import java.math.BigDecimal;
-import java.util.concurrent.atomic.AtomicLong;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
@@ -16,43 +17,36 @@ import org.springframework.stereotype.Service;
 @Service
 public final class TopUpWalletCommand {
   private final CreditCardCharger creditCardCharger;
-  private final CreateWalletTopUpCommand createWalletTopUpCommand;
   private final WalletRepository walletRepository;
+  private final WalletTopUpRepository walletTopUpRepository;
 
   public TopUpWalletCommand(
       @Qualifier("stripeCreditCardCharger") CreditCardCharger creditCardCharger,
-      CreateWalletTopUpCommand createWalletTopUpCommand,
-      WalletRepository walletRepository) {
+      @Qualifier("databaseWalletRepository") WalletRepository walletRepository,
+      @Qualifier("databaseWalletTopUpRepository") WalletTopUpRepository walletTopUpRepository) {
     this.creditCardCharger = creditCardCharger;
-    this.createWalletTopUpCommand = createWalletTopUpCommand;
     this.walletRepository = walletRepository;
+    this.walletTopUpRepository = walletTopUpRepository;
   }
 
   public Result execute(Input input) {
-    AtomicLong topUpId = new AtomicLong();
+    long topUpId = walletTopUpRepository.nextId();
 
     walletRepository
         .update(
             input.walletId,
             wallet -> {
-              wallet.topUp(input.amount);
-
               Charge charge =
                   creditCardCharger.charge(new CreditCard(input.creditCardNumber), input.amount);
 
-              long id =
-                  createWalletTopUpCommand.execute(
-                      CreateWalletTopUpCommand.Input.builder()
-                          .paymentId(charge.getPaymentId())
-                          .walletId(wallet.getId())
-                          .amount(input.amount)
-                          .build());
+              WalletTopUp walletTopUp =
+                  new WalletTopUp(topUpId, charge.getPaymentId(), input.amount);
 
-              topUpId.set(id);
+              wallet.topUp(walletTopUp);
             })
         .orElseThrow(NotFoundException::new);
 
-    return new Result(topUpId.get());
+    return new Result(topUpId);
   }
 
   @Value

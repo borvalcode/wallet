@@ -6,5 +6,5 @@ import org.springframework.stereotype.Component;
 
 @Component
 public interface WalletTopUpView {
-  Optional<WalletTopUpDetails> getWalletTopUp(long walletId, long topUpId);
+  Optional<WalletTopUpDetails> get(long walletId, long topUpId);
 }

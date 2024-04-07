@@ -4,9 +4,9 @@ import com.playtomic.tests.wallet.domain.query.dto.WalletDetails;
 import com.playtomic.tests.wallet.domain.query.view.WalletView;
 import com.playtomic.tests.wallet.infrastructure.inmemory.InMemoryWalletStorage;
 import java.util.Optional;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-@Service
+@Component("inMemoryWalletView")
 public class InMemoryWalletView implements WalletView {
   private final InMemoryWalletStorage walletStorage;
 

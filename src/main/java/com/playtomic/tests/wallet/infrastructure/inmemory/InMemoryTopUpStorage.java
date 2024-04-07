@@ -9,9 +9,6 @@ public class InMemoryTopUpStorage extends InMemoryStorage<Long, WalletTopUp> {
     super(
         walletTopUp ->
             new WalletTopUp(
-                walletTopUp.getId(),
-                walletTopUp.getPaymentId(),
-                walletTopUp.getAmount(),
-                walletTopUp.getWalletId()));
+                walletTopUp.getId(), walletTopUp.getPaymentId(), walletTopUp.getAmount()));
   }
 }

@@ -1,3 +1,3 @@
-package com.playtomic.tests.wallet.domain;
+package com.playtomic.tests.wallet.domain.exception;
 
 public class NotFoundException extends RuntimeException {}

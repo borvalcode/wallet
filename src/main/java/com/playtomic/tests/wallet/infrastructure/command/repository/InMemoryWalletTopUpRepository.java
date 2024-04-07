@@ -1,27 +1,14 @@
 package com.playtomic.tests.wallet.infrastructure.command.repository;
 
-import com.playtomic.tests.wallet.domain.command.entity.WalletTopUp;
 import com.playtomic.tests.wallet.domain.command.repository.WalletTopUpRepository;
-import com.playtomic.tests.wallet.infrastructure.inmemory.InMemoryTopUpStorage;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-@Service
+@Component("inMemoryWalletTopUpRepository")
 public class InMemoryWalletTopUpRepository implements WalletTopUpRepository {
   private static long currentWalletId = 0;
-
-  private final InMemoryTopUpStorage paymentStorage;
-
-  public InMemoryWalletTopUpRepository(InMemoryTopUpStorage paymentStorage) {
-    this.paymentStorage = paymentStorage;
-  }
 
   @Override
   public long nextId() {
     return ++currentWalletId;
-  }
-
-  @Override
-  public void store(WalletTopUp walletTopUp) {
-    paymentStorage.put(walletTopUp.getId(), walletTopUp);
   }
 }

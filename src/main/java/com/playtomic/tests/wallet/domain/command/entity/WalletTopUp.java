@@ -6,13 +6,11 @@ public final class WalletTopUp {
   private final long id;
   private final String paymentId;
   private final BigDecimal amount;
-  private final long walletId;
 
-  public WalletTopUp(long id, String paymentId, BigDecimal amount, long walletId) {
+  public WalletTopUp(long id, String paymentId, BigDecimal amount) {
     this.id = id;
     this.paymentId = paymentId;
     this.amount = amount;
-    this.walletId = walletId;
   }
 
   public long getId() {
@@ -25,9 +23,5 @@ public final class WalletTopUp {
 
   public BigDecimal getAmount() {
     return amount;
-  }
-
-  public long getWalletId() {
-    return walletId;
   }
 }

@@ -3,7 +3,10 @@ package com.playtomic.tests.wallet.domain.command;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.playtomic.tests.wallet.domain.command.entity.Wallet;
+import com.playtomic.tests.wallet.domain.command.entity.WalletTopUp;
+import com.playtomic.tests.wallet.domain.exception.ValidationException;
 import java.math.BigDecimal;
+import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 
 class WalletTest {
@@ -16,22 +19,47 @@ class WalletTest {
   }
 
   @Test
-  void topUpAWallet() {
+  void topUpAWalletIncreasesAmount() {
     Wallet wallet = new Wallet(1);
 
-    wallet.topUp(new BigDecimal("1.5"));
+    wallet.topUp(new WalletTopUp(1, "FOO", new BigDecimal("1.5")));
 
     assertEquals(new BigDecimal("1.5"), wallet.getAmount());
   }
 
   @Test
-  void topUpWalletAccumulation() {
+  void topUpWalletAmountAccumulation() {
     Wallet wallet = new Wallet(1);
 
-    wallet.topUp(new BigDecimal("1.5"));
-    wallet.topUp(new BigDecimal("2.2"));
+    wallet.topUp(new WalletTopUp(1, "FOO", new BigDecimal("1.5")));
+    wallet.topUp(new WalletTopUp(2, "FOO2", new BigDecimal("2.2")));
 
     assertEquals(new BigDecimal("3.7"), wallet.getAmount());
+  }
+
+  @Test
+  void topUpSavedInAList() {
+    Wallet wallet = new Wallet(1);
+
+    WalletTopUp walletTopUp1 = new WalletTopUp(1, "FOO", new BigDecimal("1.5"));
+    wallet.topUp(walletTopUp1);
+
+    WalletTopUp walletTopUp2 = new WalletTopUp(2, "FOO2", new BigDecimal("2.2"));
+    wallet.topUp(walletTopUp2);
+
+    assertEquals(wallet.getNewWalletTopUps(), Arrays.asList(walletTopUp1, walletTopUp2));
+  }
+
+  @Test
+  void cantAddTwoTopUpsWithSameId() {
+    Wallet wallet = new Wallet(1);
+
+    WalletTopUp walletTopUp1 = new WalletTopUp(1, "FOO", new BigDecimal("1.5"));
+    wallet.topUp(walletTopUp1);
+
+    WalletTopUp walletTopUp2 = new WalletTopUp(1, "FOO2", new BigDecimal("2.2"));
+
+    assertThrows(RuntimeException.class, () -> wallet.topUp(walletTopUp2));
   }
 
   @Test
@@ -50,7 +78,8 @@ class WalletTest {
 
     BigDecimal amount = wallet.getAmount();
 
-    assertThrows(IllegalArgumentException.class, () -> wallet.topUp(BigDecimal.ZERO));
+    assertThrows(
+        ValidationException.class, () -> wallet.topUp(new WalletTopUp(1, "FOO", BigDecimal.ZERO)));
     assertEquals(amount, wallet.getAmount());
   }
 
@@ -60,56 +89,9 @@ class WalletTest {
 
     BigDecimal amount = wallet.getAmount();
 
-    assertThrows(IllegalArgumentException.class, () -> wallet.topUp(new BigDecimal("-1")));
-    assertEquals(amount, wallet.getAmount());
-  }
-
-  @Test
-  void deductAWallet() {
-    Wallet wallet = new Wallet(1);
-
-    wallet.spend(new BigDecimal("1.5"));
-
-    assertEquals(new BigDecimal("-1.5"), wallet.getAmount());
-  }
-
-  @Test
-  void deductWalletAccumulation() {
-    Wallet wallet = new Wallet(1);
-
-    wallet.spend(new BigDecimal("1.5"));
-    wallet.spend(new BigDecimal("2.2"));
-
-    assertEquals(new BigDecimal("-3.7"), wallet.getAmount());
-  }
-
-  @Test
-  void deductErrorIfNullParam() {
-    Wallet wallet = new Wallet(1);
-
-    BigDecimal amount = wallet.getAmount();
-
-    assertThrows(NullPointerException.class, () -> wallet.spend(null));
-    assertEquals(amount, wallet.getAmount());
-  }
-
-  @Test
-  void deductErrorIfZeroAmount() {
-    Wallet wallet = new Wallet(1);
-
-    BigDecimal amount = wallet.getAmount();
-
-    assertThrows(IllegalArgumentException.class, () -> wallet.spend(BigDecimal.ZERO));
-    assertEquals(amount, wallet.getAmount());
-  }
-
-  @Test
-  void deductErrorIfNegativeAmount() {
-    Wallet wallet = new Wallet(1);
-
-    BigDecimal amount = wallet.getAmount();
-
-    assertThrows(IllegalArgumentException.class, () -> wallet.spend(new BigDecimal("-1")));
+    assertThrows(
+        ValidationException.class,
+        () -> wallet.topUp(new WalletTopUp(1, "FOO", new BigDecimal("-1.5"))));
     assertEquals(amount, wallet.getAmount());
   }
 }

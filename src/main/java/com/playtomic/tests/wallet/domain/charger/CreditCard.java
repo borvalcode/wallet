@@ -1,5 +1,6 @@
 package com.playtomic.tests.wallet.domain.charger;
 
+import com.playtomic.tests.wallet.domain.exception.ValidationException;
 import lombok.NonNull;
 import lombok.Value;
 
@@ -11,7 +12,7 @@ public class CreditCard {
 
   public CreditCard(@NonNull String number) {
     if (!number.matches(PATTERN)) {
-      throw new IllegalArgumentException();
+      throw new ValidationException("Invalid credit card number format");
     }
     this.number = number;
   }

@@ -76,7 +76,7 @@ public class WalletApplicationIT {
 
     assertNotNull(walletTopUpDetails.getId());
     assertEquals("123", walletTopUpDetails.getPaymentId());
-    assertEquals(new BigDecimal(5), walletTopUpDetails.getAmount());
+    assertEquals(new BigDecimal(5), walletTopUpDetails.getAmount().stripTrailingZeros());
     assertEquals(walletId, walletTopUpDetails.getWalletId());
   }
 
@@ -107,7 +107,7 @@ public class WalletApplicationIT {
             .getResponseBody()
             .getAmount();
 
-    assertEquals(new BigDecimal(5), balance);
+    assertEquals(new BigDecimal(5), balance.stripTrailingZeros());
   }
 
   @Test
@@ -193,17 +193,36 @@ public class WalletApplicationIT {
   @ParameterizedTest
   @MethodSource("provideInvalidTopUpRequests")
   void topUpInvalidRequest(TopupWalletRequest request) {
+    stubFor(
+        WireMock.post("/v1/stripe-simulator/charges")
+            .withHeader("Content-Type", containing("json"))
+            .withRequestBody(
+                equalToJson(
+                    String.format(
+                        "{\"credit_card\": \"%s\", \"amount\": %s}",
+                        request.getCreditCardNumber(), request.getAmount())))
+            .willReturn(
+                aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", "application/json")
+                    .withBody("{\"id\": \"123\"}")));
+
     long walletId = createWallet();
 
     topUpWallet(walletId, request).expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
   }
 
   private void assertWalletAmountZero(long walletId) {
-    getWalletDetails(walletId)
-        .expectStatus()
-        .isOk()
-        .expectBody(WalletDetails.class)
-        .isEqualTo(new WalletDetails(walletId, BigDecimal.ZERO));
+    BigDecimal amount =
+        getWalletDetails(walletId)
+            .expectStatus()
+            .isOk()
+            .expectBody(WalletDetails.class)
+            .returnResult()
+            .getResponseBody()
+            .getAmount();
+
+    assertEquals(BigDecimal.ZERO, amount.stripTrailingZeros());
   }
 
   private WebTestClient.ResponseSpec getWalletDetails(Object walletId) {

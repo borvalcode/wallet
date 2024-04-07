@@ -1,8 +1,9 @@
 package com.playtomic.tests.wallet.api;
 
-import com.playtomic.tests.wallet.domain.NotFoundException;
 import com.playtomic.tests.wallet.domain.command.CreateWalletCommand;
 import com.playtomic.tests.wallet.domain.command.TopUpWalletCommand;
+import com.playtomic.tests.wallet.domain.exception.NotFoundException;
+import com.playtomic.tests.wallet.domain.exception.ValidationException;
 import com.playtomic.tests.wallet.domain.query.GetWalletQuery;
 import com.playtomic.tests.wallet.domain.query.GetWalletTopUpQuery;
 import com.playtomic.tests.wallet.domain.query.dto.WalletDetails;
@@ -80,7 +81,7 @@ public class WalletController {
       return getTopUp(walletId, result.getTopUpId());
     } catch (NotFoundException ex) {
       return ResponseEntity.notFound().build();
-    } catch (IllegalArgumentException ex) {
+    } catch (ValidationException ex) {
       return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
     } catch (Exception ex) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
