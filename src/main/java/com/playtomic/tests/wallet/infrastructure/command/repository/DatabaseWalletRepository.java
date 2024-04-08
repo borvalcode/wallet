@@ -97,8 +97,8 @@ public final class DatabaseWalletRepository implements WalletRepository {
 
     preparedStatement.execute();
 
-    for (WalletTopUp walletTopUp : wallet.getNewWalletTopUps()) {
-      save(connection, walletTopUp, wallet.getId());
+    for (WalletTopUp walletTopUp : wallet.getWalletTopUps()) {
+      upsert(connection, walletTopUp, wallet.getId());
     }
   }
 
@@ -110,16 +110,16 @@ public final class DatabaseWalletRepository implements WalletRepository {
 
     preparedStatement.executeUpdate();
 
-    for (WalletTopUp walletTopUp : wallet.getNewWalletTopUps()) {
-      save(connection, walletTopUp, wallet.getId());
+    for (WalletTopUp walletTopUp : wallet.getWalletTopUps()) {
+      upsert(connection, walletTopUp, wallet.getId());
     }
   }
 
-  private void save(Connection connection, WalletTopUp walletTopUp, long walletId)
+  private void upsert(Connection connection, WalletTopUp walletTopUp, long walletId)
       throws SQLException {
     PreparedStatement preparedStatement =
         connection.prepareStatement(
-            "INSERT INTO top_up(id, amount, payment_id, wallet_id) VALUES (?, ?, ?, ?)");
+            "MERGE INTO top_up(id, amount, payment_id, wallet_id) VALUES (?, ?, ?, ?)");
     preparedStatement.setLong(1, walletTopUp.getId());
     preparedStatement.setBigDecimal(2, walletTopUp.getAmount());
     preparedStatement.setString(3, walletTopUp.getPaymentId());

@@ -5,12 +5,14 @@ import static java.util.Objects.requireNonNull;
 import com.playtomic.tests.wallet.domain.exception.ValidationException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public final class Wallet {
   private final long id;
   private BigDecimal amount;
-  private final List<WalletTopUp> newWalletTopUps = new ArrayList<>();
+  private final Map<Long, WalletTopUp> walletTopUps = new HashMap<>();
 
   public Wallet(long id) {
     this(id, BigDecimal.ZERO);
@@ -29,8 +31,8 @@ public final class Wallet {
     return amount;
   }
 
-  public List<WalletTopUp> getNewWalletTopUps() {
-    return newWalletTopUps;
+  public List<WalletTopUp> getWalletTopUps() {
+    return new ArrayList<>(walletTopUps.values());
   }
 
   private void requirePositive(BigDecimal amount) {
@@ -42,11 +44,11 @@ public final class Wallet {
   public void topUp(WalletTopUp walletTopUp) {
     requireNonNull(walletTopUp);
 
-    if (newWalletTopUps.stream().anyMatch(topUp -> topUp.getId() == walletTopUp.getId())) {
+    if (walletTopUps.containsKey(walletTopUp.getId())) {
       throw new RuntimeException("Can't add 2 topUps with same id");
     }
 
-    newWalletTopUps.add(walletTopUp);
+    walletTopUps.put(walletTopUp.getId(), walletTopUp);
 
     topUp(walletTopUp.getAmount());
   }

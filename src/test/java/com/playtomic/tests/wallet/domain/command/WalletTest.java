@@ -47,7 +47,7 @@ class WalletTest {
     WalletTopUp walletTopUp2 = new WalletTopUp(2, "FOO2", new BigDecimal("2.2"));
     wallet.topUp(walletTopUp2);
 
-    assertEquals(wallet.getNewWalletTopUps(), Arrays.asList(walletTopUp1, walletTopUp2));
+    assertEquals(wallet.getWalletTopUps(), Arrays.asList(walletTopUp1, walletTopUp2));
   }
 
   @Test

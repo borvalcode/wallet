@@ -31,7 +31,7 @@ public class InMemoryWalletRepository implements WalletRepository {
     walletStorage.put(wallet.getId(), wallet);
 
     wallet
-        .getNewWalletTopUps()
+        .getWalletTopUps()
         .forEach(walletTopUp -> topUpStorage.put(walletTopUp.getId(), walletTopUp));
   }
 
