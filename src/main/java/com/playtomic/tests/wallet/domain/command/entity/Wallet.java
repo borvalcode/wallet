@@ -12,15 +12,21 @@ import java.util.Map;
 public final class Wallet {
   private final long id;
   private BigDecimal amount;
-  private final Map<Long, WalletTopUp> walletTopUps = new HashMap<>();
+  private final Map<Long, WalletTopUp> walletTopUps;
 
   public Wallet(long id) {
     this(id, BigDecimal.ZERO);
   }
 
   public Wallet(long id, BigDecimal amount) {
+    this(id, amount, new ArrayList<>());
+  }
+
+  public Wallet(long id, BigDecimal amount, List<WalletTopUp> walletTopUps) {
     this.id = id;
     this.amount = requireNonNull(amount);
+    this.walletTopUps = new HashMap<>();
+    walletTopUps.forEach(walletTopUp -> this.walletTopUps.put(walletTopUp.getId(), walletTopUp));
   }
 
   public long getId() {

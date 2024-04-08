@@ -19,11 +19,11 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class StripeService {
 
-  @NonNull private URI chargesUri;
+  @NonNull private final URI chargesUri;
 
-  @NonNull private URI refundsUri;
+  @NonNull private final URI refundsUri;
 
-  @NonNull private RestTemplate restTemplate;
+  @NonNull private final RestTemplate restTemplate;
 
   public StripeService(
       @Value("${stripe.simulator.charges-uri}") @NonNull URI chargesUri,
